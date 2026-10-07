@@ -9,7 +9,7 @@ const Url = require('./models/Url')
 const app = express();
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({ origin: process.env.FRONTEND_URL }))
 
 app.use('/api', urlRoutes);
 
@@ -31,7 +31,14 @@ app.get('/:shortCode', async (req, res) => {
     }
 });
 
+
+
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected'))
-    .catch(err => console.log(err));
-app.listen(process.env.PORT, () => console.log('server run successfully'))
+    .then(() => {
+        console.log('Connected');
+        app.listen(process.env.PORT || 5000, () => console.log('server run successfully'));
+    })
+    .catch(err => {
+        console.log(err);
+        process.exit(1);
+    });
