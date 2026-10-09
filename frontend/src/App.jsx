@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
@@ -41,19 +42,17 @@ export default function App() {
 
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/api/shorten`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originalUrl: url }),
+      const res = await axios.post(`${API_URL}/api/shorten`, {
+        originalUrl: url
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Something went wrong. Try again.')
+      setResult(res.data)
+
+    } catch (e) {
+      if (e.response) {
+        setError(e.response.data?.error || 'Something went wrong. Try again.')
       } else {
-        setResult(data)
+        setError('Cannot reach the server. Check that the backend is running.')
       }
-    } catch {
-      setError('Cannot reach the server. Check that the backend is running.')
     } finally {
       setLoading(false)
     }
@@ -124,7 +123,7 @@ export default function App() {
             <div className="result" >
               <p className="original" title={result.originalUrl}>
                 {result.originalUrl}
-              </p>  
+              </p>
               <div className="short-row">
                 <a
                   className="short-link"
